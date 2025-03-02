@@ -6,7 +6,7 @@ const sharp = require("sharp"); // Import sharp
 config(); // Load environment variables
 
 const app = express();
-const port = process.env.PORT || "80";
+const port = process.env.PORT || "10000";
 
 app.get("/", (_, res) => res.redirect(302, "https://www.avatartion.com/"));
 
