@@ -8,7 +8,7 @@ config(); // Load environment variables
 const app = express();
 const port = process.env.PORT || "10000";
 
-app.get("/", (_, res) => res.redirect(302, "https://www.avatartion.com/"));
+app.get("/", (_, res) => res.redirect(302, "https://www.redaciona.com.br/"));
 
 app.get("/api", async (req, res) => {
   try {
@@ -33,12 +33,12 @@ module.exports = app; // For testing, if needed
 async function renderSvgToPng(svgString, queryParams) {
   try {
     // Get width from query parameters, default to 640 if not provided or invalid
-    let width = parseInt(queryParams.width) || 320;
+    let width = parseInt(queryParams.width) || 640;
     if (isNaN(width) || width <= 0) {
-      width = 320; // Default value
+      width = 640; // Default value
     }
 
-    if (width > 640) width = 8;
+    if (width > 720) width = 8;
 
     let height = parseInt(queryParams.height); //we try to get height
     //If height is provided use it, otherwise sharp will calculate height preserving the aspect ratio
@@ -48,7 +48,7 @@ async function renderSvgToPng(svgString, queryParams) {
 
     const pngBuffer = await sharp(Buffer.from(svgString), {})
       .resize({ width: width, height: height, fit: "inside" }) // Resize, preserving aspect ratio, fitting within dimensions
-      .jpeg({
+      .png({
         progressive: true,
       }) // Convert to PNG
       .toBuffer(); // Get the buffer
