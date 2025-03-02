@@ -1,3 +1,4 @@
+// (All your part imports remain the same)
 const Accessory01 = require('./parts/accessories/Accessory01.js');
 const Accessory02 = require('./parts/accessories/Accessory02.js');
 const Accessory03 = require('./parts/accessories/Accessory03.js');
@@ -226,14 +227,15 @@ function getParts(part, leadZeroNumber = '', itemsAv = 0, response) {
     try {
         if (parts[part] === 'Body' || parts[part] === 'Bg') {
             const onlyPart = hashPart[parts[part]];
-            return onlyPart.replace('fill="none"', `fill="none" class="avatar-part ${part}"`);
+            return onlyPart;
         }
         const partTaken = leadZeroNumber ? parts[part] + leadZeroNumber : randomPart(parts[part], itemsAv)
         const partSvg = hashPart[partTaken];
-        response.set('X-' + part, partTaken);
-        return partSvg.replace('fill="none"', `fill="none" class="avatar-part ${part}"`);
+        response.set('X-' + part, partTaken); // Set the X-part header
+        return partSvg;
     } catch (err) {
-        console.error(err);
+        console.error(`Error getting part "${part}":`, err);
+        return undefined; // Return undefined to indicate failure
     }
 }
 

@@ -1,70 +1,63 @@
-const app = require('express')();
-const { avatarGenerator } = require('./avatarGenerator');
-const { config } = require('dotenv');
-const port = process.env.PORT ?? '3000';
+const express = require("express");
+const { generateAvatar } = require("./avatarGenerator");
+const { config } = require("dotenv");
+const sharp = require("sharp"); // Import sharp
 
-config();
+config(); // Load environment variables
 
-let chrome = {};
-let puppeteer;
+const app = express();
+const port = process.env.PORT || "80";
 
-const isProduction = process.env.AWS_LAMBDA_FUNCTION_VERSION;
-if (isProduction) {
-    chrome = require("chrome-aws-lambda");
-    puppeteer = require("puppeteer-core");
-} else {
-    puppeteer = require("puppeteer");
-}
+app.get("/", (_, res) => res.redirect(302, "https://www.avatartion.com/"));
 
-app.get('/', (_, res) => res.redirect(302, 'https://www.avatartion.com/'))
-app.get("/api", async (request, response) => {
+app.get("/api", async (req, res) => {
+  try {
+    console.time("generateAvatar");
+    const avatarSvg = await generateAvatar(req.query, res); // Generate the SVG string
+    console.timeEnd("generateAvatar");
+    console.time("render");
+    const pngBuffer = await renderSvgToPng(avatarSvg, req.query); // Render to PNG, pass query parameters
+    console.timeEnd("render");
+    res.set("Content-Type", "image/png");
+    res.send(pngBuffer);
+  } catch (error) {
+    console.error("Error in /api:", error);
+    res.status(500).send("Error generating avatar");
+  }
+});
 
-    const options = isProduction ? {
-        args: [...chrome.args, "--hide-scrollbars", "--disable-web-security"],
-        defaultViewpot: chrome.defaultViewport,
-        executablePath: await chrome.executablePath,
-        headless: true,
-        ignoreHTTPSErrors: true,
-    } : {
-        headless: true,
-        args: ['--no-sandbox']
-    };
+app.listen(port, () => console.log(`App listening on port localhost:${port}`));
 
-    const browser = await puppeteer.launch(options);
-    try {
-        const page = await browser.newPage();
-        const searchParams = request.query;
+module.exports = app; // For testing, if needed
 
-        const vdom = `
-            ${await avatarGenerator({
-            body: searchParams?.body ?? null,
-            bg: searchParams?.bg ?? null,
-            hair: searchParams?.hair ?? null,
-            eye: searchParams?.eyes ?? null,
-            mouth: searchParams?.mouth ?? null,
-            head: searchParams?.face ?? null,
-            outfit: searchParams?.outfit ?? null,
-            accessory: searchParams?.accessory ?? null
-        }, response)}
-        `
-
-        await page.setContent(vdom)
-        const elementHandle = await page.$('#main-content');
-
-        const imageBuffer = await elementHandle.screenshot({ type: "png" });
-
-        response.set('Content-Type', 'image/png');
-        response.send(imageBuffer);
-    } catch (error) {
-        console.error(error);
-        response.status(500).send("Error during screenshot");
-    } finally {
-        // Close the browser
-        await browser.close();
+async function renderSvgToPng(svgString, queryParams) {
+  try {
+    // Get width from query parameters, default to 640 if not provided or invalid
+    let width = parseInt(queryParams.width) || 320;
+    if (isNaN(width) || width <= 0) {
+      width = 320; // Default value
     }
 
-})
+    if (width > 640) width = 8;
 
-app.listen(port, () => console.log(`app listening on port localhost:${port}`));
+    let height = parseInt(queryParams.height); //we try to get height
+    //If height is provided use it, otherwise sharp will calculate height preserving the aspect ratio
+    if (isNaN(height) || height <= 0) {
+      height = null;
+    }
 
-module.exports = app;
+    const pngBuffer = await sharp(Buffer.from(svgString), {})
+      .resize({ width: width, height: height, fit: "inside" }) // Resize, preserving aspect ratio, fitting within dimensions
+      .jpeg({
+        progressive: true,
+      }) // Convert to PNG
+      .toBuffer(); // Get the buffer
+
+    return pngBuffer;
+  } catch (error) {
+    console.error("ERROR RENDERING", error); // Log the actual error for debugging
+    throw new Error("Error rendering SVG to PNG: " + error.message, {
+      cause: error,
+    });
+  }
+}
