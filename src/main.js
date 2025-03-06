@@ -31,9 +31,16 @@ app.get("/api/random", async (req, res) => {
     let count = parseInt(req.query.count) || 1;
     count = Math.min(Math.max(count, 1), 10); // Limit between 1 and 10
 
+    console.time("generateRandomAvatars");
     const avatarPromises = Array(count).fill().map(async (_, index) => {
+      console.time(`avatar_${index + 1}`);
       const avatarSvg = await generateAvatar(req.query, res); // Passando req.query aqui
-      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 640 });
+      console.timeEnd(`avatar_${index + 1}`);
+      
+      console.time(`render_${index + 1}`);
+      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 320 });
+      console.timeEnd(`render_${index + 1}`);
+      
       return {
         id: index + 1,
         base64: `data:image/png;base64,${pngBuffer.toString('base64')}`
@@ -41,6 +48,7 @@ app.get("/api/random", async (req, res) => {
     });
 
     const avatars = await Promise.all(avatarPromises);
+    console.timeEnd("generateRandomAvatars");
 
     if (count === 1) {
       res.json(avatars[0]); // Para um único avatar, retorna objeto direto
@@ -64,9 +72,9 @@ module.exports = app; // For testing, if needed
 async function renderSvgToPng(svgString, queryParams) {
   try {
     // Get width from query parameters, default to 640 if not provided or invalid
-    let width = parseInt(queryParams.width) || 640;
+    let width = parseInt(queryParams.width) || 320;
     if (isNaN(width) || width <= 0) {
-      width = 640; // Default value
+      width = 320; // Default value
     }
 
     if (width > 720) width = 8;
@@ -80,7 +88,7 @@ async function renderSvgToPng(svgString, queryParams) {
     const pngBuffer = await sharp(Buffer.from(svgString), {})
       .resize({ width: width, height: height, fit: "inside" }) // Resize, preserving aspect ratio, fitting within dimensions
       .png({
-        progressive: true,
+        progressive: false,
       }) // Convert to PNG
       .toBuffer(); // Get the buffer
 
