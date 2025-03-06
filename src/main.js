@@ -26,6 +26,37 @@ app.get("/api", async (req, res) => {
   }
 });
 
+app.get("/api/random", async (req, res) => {
+  try {
+    let count = parseInt(req.query.count) || 1;
+    count = Math.min(Math.max(count, 1), 10); // Limit between 1 and 10
+
+    const avatarPromises = Array(count).fill().map(async (_, index) => {
+      const avatarSvg = await generateAvatar(req.query, res); // Passando req.query aqui
+      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 640 });
+      return {
+        id: index + 1,
+        base64: `data:image/png;base64,${pngBuffer.toString('base64')}`
+      };
+    });
+
+    const avatars = await Promise.all(avatarPromises);
+
+    if (count === 1) {
+      res.json(avatars[0]); // Para um único avatar, retorna objeto direto
+      return;
+    }
+
+    res.json({
+      count: avatars.length,
+      avatars: avatars
+    });
+  } catch (error) {
+    console.error("Error in /api/random:", error);
+    res.status(500).send("Error generating avatars");
+  }
+});
+
 app.listen(port, () => console.log(`App listening on port localhost:${port}`));
 
 module.exports = app; // For testing, if needed
