@@ -8,16 +8,17 @@ config(); // Load environment variables
 
 const app = express();
 
-const corsOptions = {
+app.use(cors({
   origin: "*",
   methods: "*",
   credentials: true,
   allowedHeaders: "*",
   exposeHeaders: "*",
-  preflightContinue: true
-};
+  preflightContinue: true,
+  exposedHeaders: "*",
+  optionsSuccessStatus: 204,
+})); // Accept ALL domains (development only)
 
-app.use(cors(corsOptions)); // Accept ALL domains (development only)
 const port = process.env.PORT || "10000";
 
 app.get("/", (_, res) => res.redirect(302, "https://www.redaciona.com.br/"));
