@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors"); // Added cors import
 const { generateAvatar } = require("./avatarGenerator");
 const { config } = require("dotenv");
 const sharp = require("sharp"); // Import sharp
@@ -6,6 +7,17 @@ const sharp = require("sharp"); // Import sharp
 config(); // Load environment variables
 
 const app = express();
+
+const corsOptions = {
+  origin: "*",
+  methods: "*",
+  credentials: true,
+  allowedHeaders: "*",
+  exposeHeaders: "*",
+  preflightContinue: true
+};
+
+app.use(cors(corsOptions)); // Accept ALL domains (development only)
 const port = process.env.PORT || "10000";
 
 app.get("/", (_, res) => res.redirect(302, "https://www.redaciona.com.br/"));

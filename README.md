@@ -98,59 +98,6 @@ A API retorna uma imagem PNG com a largura especificada (padrão 320px).
 
 Se ocorrer um erro, a API retornará um código de status 500 com uma mensagem de erro.
 
-## Rotas da API
-
-### GET /api
-
-Gera um avatar personalizado com base nos parâmetros fornecidos.
-
-### GET /api/random
-
-Gera múltiplos avatares aleatórios em uma única requisição.
-
-**Parâmetros de Consulta:**
-- `count` - Quantidade de avatares (1-10, padrão: 1)
-- `bg` - Cor do fundo (opcional, mesmo formato da rota principal)
-- Aceita os mesmos parâmetros da rota principal para personalização
-
-**Resposta:**
-Para um único avatar:
-```json
-{
-  "id": 1,
-  "base64": "data:image/png;base64,..."
-}
-```
-
-Para múltiplos avatares:
-```json
-{
-  "count": 3,
-  "avatars": [
-    { "id": 1, "base64": "..." },
-    { "id": 2, "base64": "..." },
-    { "id": 3, "base64": "..." }
-  ]
-}
-```
-
-**Exemplos:**
-
-1. Gerar 5 avatares aleatórios:
-```
-https://avatar.redaciona.com.br/api/random?count=5
-```
-
-2. Gerar 3 avatares com fundo personalizado:
-```
-https://avatar.redaciona.com.br/api/random?count=3&bg=blue
-```
-
-3. Gerar um único avatar aleatório:
-```
-https://avatar.redaciona.com.br/api/random
-```
-
 ## Desenvolvimento
 
 Para executar a API localmente:
