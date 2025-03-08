@@ -41,6 +41,11 @@ https://avatar.redaciona.com.br/api?hair=05&eyes=02&mouth=03&face=01&outfit=12&a
 https://avatar.redaciona.com.br/api?width=400&bg=rgb(100,200,300)
 ```
 
+4. Gerando múltiplos avatares aleatórios:
+```
+https://avatar.redaciona.com.br/api/random?count=5
+```
+
 ### Referência de Intervalos das Partes
 
 #### Acessórios (01-18)
@@ -97,6 +102,38 @@ A API retorna uma imagem PNG com a largura especificada (padrão 320px).
 ### Tratamento de Erros
 
 Se ocorrer um erro, a API retornará um código de status 500 com uma mensagem de erro.
+
+### Rotas da API
+
+#### GET /api
+Retorna um avatar PNG único com base nos parâmetros fornecidos.
+
+#### GET /api/random
+Retorna um ou mais avatares em formato base64.
+
+| Parâmetro | Descrição                    | Intervalo | Padrão |
+|-----------|------------------------------|-----------|---------|
+| count     | Quantidade de avatares       | 1-10      | 1      |
+
+Exemplo de resposta para count=1:
+```json
+{
+  "id": 1,
+  "base64": "data:image/png;base64,..."
+}
+```
+
+Exemplo de resposta para count>1:
+```json
+{
+  "count": 5,
+  "avatars": [
+    { "id": 1, "base64": "data:image/png;base64,..." },
+    { "id": 2, "base64": "data:image/png;base64,..." },
+    ...
+  ]
+}
+```
 
 ## Desenvolvimento
 

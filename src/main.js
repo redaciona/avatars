@@ -39,6 +39,12 @@ app.get("/api", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/random
+ * Generate one or more random avatars
+ * @param {number} count - Number of avatars to generate (1-10)
+ * @returns {Object} JSON with base64 encoded PNG avatars
+ */
 app.get("/api/random", async (req, res) => {
   try {
     let count = parseInt(req.query.count) || 1;
