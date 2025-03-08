@@ -4,9 +4,13 @@ Uma API simples para gerar imagens de avatares personalizáveis.
 
 ## Uso da API
 
-A URL base para a API é:
+A URL base para a API será:
 ```
 https://avatar.redaciona.com.br/api
+```
+Por enquanto, estamos usando:
+```
+https://avatars-5tcx.onrender.com/api
 ```
 
 ### Parâmetros de Consulta
