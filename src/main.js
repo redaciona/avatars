@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors"); // Added cors import
 const { generateAvatar } = require("./avatarGenerator");
 const { config } = require("dotenv");
 const sharp = require("sharp"); // Import sharp
@@ -6,21 +7,32 @@ const sharp = require("sharp"); // Import sharp
 config(); // Load environment variables
 
 const app = express();
+
+app.use(cors({
+  origin: "*",
+  methods: "*",
+  credentials: true,
+  allowedHeaders: "*",
+  exposeHeaders: "*",
+  preflightContinue: false, // Mudou para false
+  exposedHeaders: "*",
+  optionsSuccessStatus: 200,
+}));
+
 const port = process.env.PORT || "10000";
+
+app.options('*', cors()); // Habilita pre-flight para todas as rotas
+
 
 app.get("/", (_, res) => res.redirect(302, "https://www.redaciona.com.br/"));
 
 app.get("/api", async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET');
   try {
     console.time("generateAvatar");
     const avatarSvg = await generateAvatar(req.query, res); // Generate the SVG string
     console.timeEnd("generateAvatar");
-
-    if (req.query.raw === 'true') {
-      res.set("Content-Type", "image/svg+xml");
-      return res.send(avatarSvg);
-    }
-
     console.time("render");
     const pngBuffer = await renderSvgToPng(avatarSvg, req.query); // Render to PNG, pass query parameters
     console.timeEnd("render");
@@ -32,6 +44,12 @@ app.get("/api", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/random
+ * Generate one or more random avatars
+ * @param {number} count - Number of avatars to generate (1-10)
+ * @returns {Object} JSON with base64 encoded PNG avatars
+ */
 app.get("/api/random", async (req, res) => {
   try {
     let count = parseInt(req.query.count) || 1;
@@ -43,15 +61,8 @@ app.get("/api/random", async (req, res) => {
       const avatarSvg = await generateAvatar(req.query, res); // Passando req.query aqui
       console.timeEnd(`avatar_${index + 1}`);
       
-      if (req.query.raw === 'true') {
-        return {
-          id: index + 1,
-          svg: avatarSvg
-        };
-      }
-
       console.time(`render_${index + 1}`);
-      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 320 });
+      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 128 });
       console.timeEnd(`render_${index + 1}`);
       
       return {
@@ -85,12 +96,12 @@ module.exports = app; // For testing, if needed
 async function renderSvgToPng(svgString, queryParams) {
   try {
     // Get width from query parameters, default to 640 if not provided or invalid
-    let width = parseInt(queryParams.width) || 320;
+    let width = parseInt(queryParams.width) || 128;
     if (isNaN(width) || width <= 0) {
-      width = 320; // Default value
+      width = 128; // Default value
     }
 
-    if (width > 720) width = 8;
+    if (width > 640) width = 8;
 
     let height = parseInt(queryParams.height); //we try to get height
     //If height is provided use it, otherwise sharp will calculate height preserving the aspect ratio

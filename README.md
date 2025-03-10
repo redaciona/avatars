@@ -4,16 +4,20 @@ Uma API simples para gerar imagens de avatares personalizáveis.
 
 ## Uso da API
 
-A URL base para a API é:
+A URL base para a API será:
 ```
 https://avatar.redaciona.com.br/api
+```
+Por enquanto, estamos usando:
+```
+https://avatars-5tcx.onrender.com/api
 ```
 
 ### Parâmetros de Consulta
 
 | Parâmetro  | Descrição                      | Intervalo      | Padrão     |
 |------------|--------------------------------|----------------|------------|
-| width      | Largura da imagem em pixels    | 1-640         | 320       |
+| width      | Largura da imagem em pixels    | 1-640         | 128       |
 | height     | Altura da imagem (opcional)    | proporcional  | auto      |
 | bg         | Cor do fundo                   | RGB/HEX       | #fcA5A5   |
 | body       | Estilo do corpo               | fixo          | padrão    |
@@ -23,7 +27,6 @@ https://avatar.redaciona.com.br/api
 | hair       | Estilo do cabelo              | 01-32         | aleatório |
 | mouth      | Estilo da boca                | 01-10         | aleatório |
 | outfit     | Estilo da roupa               | 01-25         | aleatório |
-| raw        | Retorna SVG puro              | true/false    | false     |
 
 ### Exemplos
 
@@ -40,6 +43,11 @@ https://avatar.redaciona.com.br/api?hair=05&eyes=02&mouth=03&face=01&outfit=12&a
 3. Tamanho personalizado e fundo:
 ```
 https://avatar.redaciona.com.br/api?width=400&bg=rgb(100,200,300)
+```
+
+4. Gerando múltiplos avatares aleatórios:
+```
+https://avatar.redaciona.com.br/api/random?count=5
 ```
 
 ### Referência de Intervalos das Partes
@@ -93,29 +101,25 @@ A API retorna cabeçalhos personalizados indicando quais partes foram usadas:
 
 ### Formato de Resposta
 
-A API retorna uma imagem PNG com a largura especificada (padrão 320px).
+A API retorna uma imagem PNG com a largura especificada (padrão 128px).
 
 ### Tratamento de Erros
 
 Se ocorrer um erro, a API retornará um código de status 500 com uma mensagem de erro.
 
-## Rotas da API
+### Rotas da API
 
-### GET /api
+#### GET /api
+Retorna um avatar PNG único com base nos parâmetros fornecidos.
 
-Gera um avatar personalizado com base nos parâmetros fornecidos.
+#### GET /api/random
+Retorna um ou mais avatares em formato base64.
 
-### GET /api/random
+| Parâmetro | Descrição                    | Intervalo | Padrão |
+|-----------|------------------------------|-----------|---------|
+| count     | Quantidade de avatares       | 1-10      | 1      |
 
-Gera múltiplos avatares aleatórios em uma única requisição.
-
-**Parâmetros de Consulta:**
-- `count` - Quantidade de avatares (1-10, padrão: 1)
-- `bg` - Cor do fundo (opcional, mesmo formato da rota principal)
-- Aceita os mesmos parâmetros da rota principal para personalização
-
-**Resposta:**
-Para um único avatar:
+Exemplo de resposta para count=1:
 ```json
 {
   "id": 1,
@@ -123,54 +127,16 @@ Para um único avatar:
 }
 ```
 
-Para múltiplos avatares:
+Exemplo de resposta para count>1:
 ```json
 {
-  "count": 3,
+  "count": 5,
   "avatars": [
-    { "id": 1, "base64": "..." },
-    { "id": 2, "base64": "..." },
-    { "id": 3, "base64": "..." }
+    { "id": 1, "base64": "data:image/png;base64,..." },
+    { "id": 2, "base64": "data:image/png;base64,..." },
+    ...
   ]
 }
-```
-
-**Resposta com raw=true:**
-Para um único avatar:
-```json
-{
-  "id": 1,
-  "svg": "<svg>...</svg>"
-}
-```
-
-Para múltiplos avatares:
-```json
-{
-  "count": 3,
-  "avatars": [
-    { "id": 1, "svg": "<svg>...</svg>" },
-    { "id": 2, "svg": "<svg>...</svg>" },
-    { "id": 3, "svg": "<svg>...</svg>" }
-  ]
-}
-```
-
-**Exemplos:**
-
-1. Gerar 5 avatares aleatórios:
-```
-https://avatar.redaciona.com.br/api/random?count=5
-```
-
-2. Gerar 3 avatares com fundo personalizado:
-```
-https://avatar.redaciona.com.br/api/random?count=3&bg=blue
-```
-
-3. Gerar um único avatar aleatório:
-```
-https://avatar.redaciona.com.br/api/random
 ```
 
 ## Desenvolvimento
