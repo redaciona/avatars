@@ -223,19 +223,38 @@ function randomPart(name, qty) {
         .padStart(2, "0")}`;
 }
 
+function normalizePartNumber(name, number) {
+    // Convert to string and pad with zero if needed
+    return `${name}${number.toString().padStart(2, "0")}`;
+}
+
 function getParts(part, leadZeroNumber = '', itemsAv = 0, response) {
     try {
         if (parts[part] === 'Body' || parts[part] === 'Bg') {
             const onlyPart = hashPart[parts[part]];
             return onlyPart;
         }
-        const partTaken = leadZeroNumber ? parts[part] + leadZeroNumber : randomPart(parts[part], itemsAv)
+
+        // Handle direct number input (remove leading zeros)
+        if (leadZeroNumber) {
+            const cleanNumber = parseInt(leadZeroNumber, 10);
+            const partName = parts[part];
+            const partTaken = normalizePartNumber(partName, cleanNumber);
+            const partSvg = hashPart[partTaken];
+            response.set('X-' + part, partTaken);
+            return partSvg;
+        }
+
+        // Random part generation
+        const randomNumber = Math.floor(Math.random() * itemsAv + 1);
+        const partTaken = normalizePartNumber(parts[part], randomNumber);
         const partSvg = hashPart[partTaken];
-        response.set('X-' + part, partTaken); // Set the X-part header
+        response.set('X-' + part, partTaken);
         return partSvg;
+
     } catch (err) {
         console.error(`Error getting part "${part}":`, err);
-        return undefined; // Return undefined to indicate failure
+        return undefined;
     }
 }
 
