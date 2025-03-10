@@ -17,7 +17,7 @@ https://avatars-5tcx.onrender.com/api
 
 | Parâmetro  | Descrição                      | Intervalo      | Padrão     |
 |------------|--------------------------------|----------------|------------|
-| width      | Largura da imagem em pixels    | 1-640         | 320       |
+| width      | Largura da imagem em pixels    | 1-640         | 128       |
 | height     | Altura da imagem (opcional)    | proporcional  | auto      |
 | bg         | Cor do fundo                   | RGB/HEX       | #fcA5A5   |
 | body       | Estilo do corpo               | fixo          | padrão    |
@@ -101,7 +101,7 @@ A API retorna cabeçalhos personalizados indicando quais partes foram usadas:
 
 ### Formato de Resposta
 
-A API retorna uma imagem PNG com a largura especificada (padrão 320px).
+A API retorna uma imagem PNG com a largura especificada (padrão 128px).
 
 ### Tratamento de Erros
 

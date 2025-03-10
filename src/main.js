@@ -57,7 +57,7 @@ app.get("/api/random", async (req, res) => {
       console.timeEnd(`avatar_${index + 1}`);
       
       console.time(`render_${index + 1}`);
-      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 320 });
+      const pngBuffer = await renderSvgToPng(avatarSvg, { width: 128 });
       console.timeEnd(`render_${index + 1}`);
       
       return {
@@ -91,12 +91,12 @@ module.exports = app; // For testing, if needed
 async function renderSvgToPng(svgString, queryParams) {
   try {
     // Get width from query parameters, default to 640 if not provided or invalid
-    let width = parseInt(queryParams.width) || 320;
+    let width = parseInt(queryParams.width) || 128;
     if (isNaN(width) || width <= 0) {
-      width = 320; // Default value
+      width = 128; // Default value
     }
 
-    if (width > 720) width = 8;
+    if (width > 640) width = 8;
 
     let height = parseInt(queryParams.height); //we try to get height
     //If height is provided use it, otherwise sharp will calculate height preserving the aspect ratio
